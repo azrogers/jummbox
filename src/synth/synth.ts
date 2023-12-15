@@ -42,6 +42,9 @@ import { EnvelopeComputer } from "./Envelope";
 import { Tone } from "./Tone";
 import { InstrumentState } from "./Instrument";
 
+(window as any)["beepbox"] = (window as any)["beepbox"] || {};
+(window as any)["beepbox"].Config = (window as any)["beepbox"].Config || Config;
+
 declare global {
 	interface Window {
 		AudioContext: any;
