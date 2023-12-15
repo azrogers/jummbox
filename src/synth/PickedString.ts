@@ -1,21 +1,22 @@
+/** @format */
+
 import { Config } from "./SynthConfig";
 import { Instrument } from "./Instrument";
 import { Synth } from "./synth";
 import { InstrumentState } from "./Instrument";
 import { Tone } from "./Tone";
 
-export class PickedString
-{
+export class PickedString {
 	public delayLine: Float32Array | null = null;
-	public delayIndex: number;
-	public allPassSample: number;
-	public allPassPrevInput: number;
-	public shelfSample: number;
-	public shelfPrevInput: number;
-	public fractionalDelaySample: number;
-	public prevDelayLength: number;
-	public delayLengthDelta: number;
-	public delayResetOffset: number;
+	public delayIndex: number = 0;
+	public allPassSample: number = 0;
+	public allPassPrevInput: number = 0;
+	public shelfSample: number = 0;
+	public shelfPrevInput: number = 0;
+	public fractionalDelaySample: number = 0;
+	public prevDelayLength: number = 0;
+	public delayLengthDelta: number = 0;
+	public delayResetOffset: number = 0;
 
 	public allPassG: number = 0;
 	public allPassGDelta: number = 0;
@@ -26,13 +27,11 @@ export class PickedString
 	public shelfB1: number = 0;
 	public shelfB1Delta: number = 0;
 
-	constructor()
-	{
+	constructor() {
 		this.reset();
 	}
 
-	public reset(): void
-	{
+	public reset(): void {
 		this.delayIndex = -1;
 		this.allPassSample = 0;
 		this.allPassPrevInput = 0;
@@ -43,10 +42,17 @@ export class PickedString
 		this.delayResetOffset = 0;
 	}
 
-	public update(synth: Synth, instrumentState: InstrumentState, tone: Tone, stringIndex: number, roundedSamplesPerTick: number, stringDecayStart: number, stringDecayEnd: number): void
-	{
-		const allPassCenter: number = 2 * Math.PI * Config.pickedStringDispersionCenterFreq / synth.samplesPerSecond;
-		const shelfRadians: number = 2 * Math.PI * Config.pickedStringShelfHz / synth.samplesPerSecond;
+	public update(
+		synth: Synth,
+		instrumentState: InstrumentState,
+		tone: Tone,
+		stringIndex: number,
+		roundedSamplesPerTick: number,
+		stringDecayStart: number,
+		stringDecayEnd: number
+	): void {
+		const allPassCenter: number = (2 * Math.PI * Config.pickedStringDispersionCenterFreq) / synth.samplesPerSecond;
+		const shelfRadians: number = (2 * Math.PI * Config.pickedStringShelfHz) / synth.samplesPerSecond;
 		const decayCurveStart: number = (Math.pow(100, stringDecayStart) - 1) / 99;
 		const decayCurveEnd: number = (Math.pow(100, stringDecayEnd) - 1) / 99;
 
@@ -62,11 +68,21 @@ export class PickedString
 		const centerHarmonicStart: number = radiansPerSampleStart * 2;
 		const centerHarmonicEnd: number = radiansPerSampleEnd * 2;
 
-		const allPassRadiansStart: number = Math.min(Math.PI, radiansPerSampleStart * Config.pickedStringDispersionFreqMult * Math.pow(allPassCenter / radiansPerSampleStart, Config.pickedStringDispersionFreqScale));
-		const allPassRadiansEnd: number = Math.min(Math.PI, radiansPerSampleEnd * Config.pickedStringDispersionFreqMult * Math.pow(allPassCenter / radiansPerSampleEnd, Config.pickedStringDispersionFreqScale));
+		const allPassRadiansStart: number = Math.min(
+			Math.PI,
+			radiansPerSampleStart *
+				Config.pickedStringDispersionFreqMult *
+				Math.pow(allPassCenter / radiansPerSampleStart, Config.pickedStringDispersionFreqScale)
+		);
+		const allPassRadiansEnd: number = Math.min(
+			Math.PI,
+			radiansPerSampleEnd *
+				Config.pickedStringDispersionFreqMult *
+				Math.pow(allPassCenter / radiansPerSampleEnd, Config.pickedStringDispersionFreqScale)
+		);
 
-		const decayRateStart: number = Math.pow(0.5, decayCurveStart * shelfRadians / radiansPerSampleStart);
-		const decayRateEnd: number = Math.pow(0.5, decayCurveEnd * shelfRadians / radiansPerSampleEnd);
+		const decayRateStart: number = Math.pow(0.5, (decayCurveStart * shelfRadians) / radiansPerSampleStart);
+		const decayRateEnd: number = Math.pow(0.5, (decayCurveEnd * shelfRadians) / radiansPerSampleEnd);
 		const shelfGainStart: number = Math.pow(decayRateStart, Config.stringDecayRate);
 		const shelfGainEnd: number = Math.pow(decayRateEnd, Config.stringDecayRate);
 		const expressionDecayStart: number = Math.pow(decayRateStart, 0.002);
@@ -115,22 +131,23 @@ export class PickedString
 
 		const pitchChanged: boolean = Math.abs(Math.log2(delayLength / prevDelayLength)) > 0.01;
 
-		const reinitializeImpulse: boolean = (this.delayIndex == -1 || pitchChanged);
-		if (this.delayLine == null || this.delayLine.length <= minBufferLength)
-		{
+		const reinitializeImpulse: boolean = this.delayIndex == -1 || pitchChanged;
+		if (this.delayLine == null || this.delayLine.length <= minBufferLength) {
 			// The delay line buffer will get reused for other tones so might as well
 			// start off with a buffer size that is big enough for most notes.
-			const likelyMaximumLength: number = Math.ceil(2 * synth.samplesPerSecond / Instrument.frequencyFromPitch(12));
-			const newDelayLine: Float32Array = new Float32Array(Synth.fittingPowerOfTwo(Math.max(likelyMaximumLength, minBufferLength)));
-			if (!reinitializeImpulse && this.delayLine != null)
-			{
+			const likelyMaximumLength: number = Math.ceil(
+				(2 * synth.samplesPerSecond) / Instrument.frequencyFromPitch(12)
+			);
+			const newDelayLine: Float32Array = new Float32Array(
+				Synth.fittingPowerOfTwo(Math.max(likelyMaximumLength, minBufferLength))
+			);
+			if (!reinitializeImpulse && this.delayLine != null) {
 				// If the tone has already started but the buffer needs to be reallocated,
 				// transfer the old data to the new buffer.
 				const oldDelayBufferMask: number = (this.delayLine.length - 1) >> 0;
 				const startCopyingFromIndex: number = this.delayIndex + this.delayResetOffset;
 				this.delayIndex = this.delayLine.length - this.delayResetOffset;
-				for (let i: number = 0; i < this.delayLine.length; i++)
-				{
+				for (let i: number = 0; i < this.delayLine.length; i++) {
 					newDelayLine[i] = this.delayLine[(startCopyingFromIndex + i) & oldDelayBufferMask];
 				}
 			}
@@ -139,8 +156,7 @@ export class PickedString
 		const delayLine: Float32Array = this.delayLine;
 		const delayBufferMask: number = (delayLine.length - 1) >> 0;
 
-		if (reinitializeImpulse)
-		{
+		if (reinitializeImpulse) {
 			// -1 delay index means the tone was reset.
 			// Also, if the pitch changed suddenly (e.g. from seamless or arpeggio) then reset the wave.
 			this.delayIndex = 0;
@@ -155,8 +171,7 @@ export class PickedString
 			const startZerosFrom: number = Math.floor(startImpulseFrom - periodLengthStart / 2);
 			const stopZerosAt: number = Math.ceil(startZerosFrom + periodLengthStart * 2);
 			this.delayResetOffset = stopZerosAt; // And continue clearing the area in front of the delay line.
-			for (let i: number = startZerosFrom; i <= stopZerosAt; i++)
-			{
+			for (let i: number = startZerosFrom; i <= stopZerosAt; i++) {
 				delayLine[i & delayBufferMask] = 0;
 			}
 
@@ -170,8 +185,7 @@ export class PickedString
 			const stopImpulseAtSample: number = stopImpulseAt;
 			let impulsePhase: number = (startImpulseFromSample - startImpulseFrom) * impulsePhaseDelta;
 			let prevWaveIntegral: number = 0;
-			for (let i: number = startImpulseFromSample; i <= stopImpulseAtSample; i++)
-			{
+			for (let i: number = startImpulseFromSample; i <= stopImpulseAtSample; i++) {
 				const impulsePhaseInt: number = impulsePhase | 0;
 				const index: number = impulsePhaseInt % impulseWaveLength;
 				let nextWaveIntegral: number = impulseWave[index];

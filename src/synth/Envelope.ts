@@ -1,14 +1,22 @@
-import { FilterType, EnvelopeType, EnvelopeComputeIndex, Transition, Envelope, AutomationTarget, Config } from "./SynthConfig";
+/** @format */
+
+import {
+	FilterType,
+	EnvelopeType,
+	EnvelopeComputeIndex,
+	Transition,
+	Envelope,
+	AutomationTarget,
+	Config
+} from "./SynthConfig";
 import { NotePin } from "./Note";
 import { Instrument } from "./Instrument";
 import { FilterSettings } from "./Filter";
 import { Synth } from "./synth";
 import { Tone } from "./Tone";
-import { EnvelopeSettings } from "./Envelope";
 import { clamp } from "./synth";
 
-export class EnvelopeComputer
-{
+export class EnvelopeComputer {
 	public noteSecondsStart: number = 0;
 	public noteSecondsEnd: number = 0;
 	public noteTicksStart: number = 0;
@@ -39,12 +47,10 @@ export class EnvelopeComputer
 	private _modifiedEnvelopeCount: number = 0;
 	public lowpassCutoffDecayVolumeCompensation: number = 1;
 
-	constructor( /*private _perNote: boolean*/)
-	{
+	constructor(/*private _perNote: boolean*/) {
 		//const length: number = this._perNote ? EnvelopeComputeIndex.length : InstrumentAutomationIndex.length;
 		const length: number = EnvelopeComputeIndex.length;
-		for (let i: number = 0; i < length; i++)
-		{
+		for (let i: number = 0; i < length; i++) {
 			this.envelopeStarts[i] = 1;
 			this.envelopeEnds[i] = 1;
 		}
@@ -52,8 +58,7 @@ export class EnvelopeComputer
 		this.reset();
 	}
 
-	public reset(): void
-	{
+	public reset(): void {
 		this.noteSecondsEnd = 0;
 		this.noteTicksEnd = 0;
 		this._noteSizeFinal = Config.noteSizeMax;
@@ -63,24 +68,25 @@ export class EnvelopeComputer
 		this._modifiedEnvelopeCount = 0;
 	}
 
-	public computeEnvelopes(instrument: Instrument, currentPart: number, tickTimeStart: number, secondsPerTick: number, tone: Tone | null): void
-	{
+	public computeEnvelopes(
+		instrument: Instrument,
+		currentPart: number,
+		tickTimeStart: number,
+		secondsPerTick: number,
+		tone: Tone | null
+	): void {
 		const transition: Transition = instrument.getTransition();
-		if (tone != null && tone.atNoteStart && !transition.continues && !tone.forceContinueAtStart)
-		{
+		if (tone != null && tone.atNoteStart && !transition.continues && !tone.forceContinueAtStart) {
 			this.prevNoteSecondsEnd = this.noteSecondsEnd;
 			this.prevNoteTicksEnd = this.noteTicksEnd;
 			this._prevNoteSizeFinal = this._noteSizeFinal;
 			this.noteSecondsEnd = 0;
 			this.noteTicksEnd = 0;
 		}
-		if (tone != null)
-		{
-			if (tone.note != null)
-			{
+		if (tone != null) {
+			if (tone.note != null) {
 				this._noteSizeFinal = tone.note.pins[tone.note.pins.length - 1].size;
-			} else
-			{
+			} else {
 				this._noteSizeFinal = Config.noteSizeMax;
 			}
 		}
@@ -111,8 +117,7 @@ export class EnvelopeComputer
 		let prevSlideRatioEnd: number = 0;
 		let nextSlideRatioStart: number = 0;
 		let nextSlideRatioEnd: number = 0;
-		if (tone != null && tone.note != null && !tone.passedEndOfNote)
-		{
+		if (tone != null && tone.note != null && !tone.passedEndOfNote) {
 			const endPinIndex: number = tone.note.getEndPinIndex(currentPart);
 			const startPin: NotePin = tone.note.pins[endPinIndex - 1];
 			const endPin: NotePin = tone.note.pins[endPinIndex];
@@ -123,36 +128,29 @@ export class EnvelopeComputer
 			noteSizeStart = startPin.size + (endPin.size - startPin.size) * ratioStart;
 			noteSizeEnd = startPin.size + (endPin.size - startPin.size) * ratioEnd;
 
-			if (transition.slides)
-			{
+			if (transition.slides) {
 				const noteStartTick: number = tone.noteStartPart * Config.ticksPerPart;
 				const noteEndTick: number = tone.noteEndPart * Config.ticksPerPart;
 				const noteLengthTicks: number = noteEndTick - noteStartTick;
 				const maximumSlideTicks: number = noteLengthTicks * 0.5;
 				const slideTicks: number = Math.min(maximumSlideTicks, transition.slideTicks);
-				if (tone.prevNote != null && !tone.forceContinueAtStart)
-				{
-					if (tickTimeStart - noteStartTick < slideTicks)
-					{
+				if (tone.prevNote != null && !tone.forceContinueAtStart) {
+					if (tickTimeStart - noteStartTick < slideTicks) {
 						prevSlideStart = true;
 						prevSlideRatioStart = 0.5 * (1 - (tickTimeStart - noteStartTick) / slideTicks);
 					}
-					if (tickTimeEnd - noteStartTick < slideTicks)
-					{
+					if (tickTimeEnd - noteStartTick < slideTicks) {
 						prevSlideEnd = true;
 						prevSlideRatioEnd = 0.5 * (1 - (tickTimeEnd - noteStartTick) / slideTicks);
 					}
 				}
-				if (tone.nextNote != null && !tone.forceContinueAtEnd)
-				{
+				if (tone.nextNote != null && !tone.forceContinueAtEnd) {
 					nextNoteSize = tone.nextNote.pins[0].size;
-					if (noteEndTick - tickTimeStart < slideTicks)
-					{
+					if (noteEndTick - tickTimeStart < slideTicks) {
 						nextSlideStart = true;
 						nextSlideRatioStart = 0.5 * (1 - (noteEndTick - tickTimeStart) / slideTicks);
 					}
-					if (noteEndTick - tickTimeEnd < slideTicks)
-					{
+					if (noteEndTick - tickTimeEnd < slideTicks) {
 						nextSlideEnd = true;
 						nextSlideRatioEnd = 0.5 * (1 - (noteEndTick - tickTimeEnd) / slideTicks);
 					}
@@ -162,49 +160,61 @@ export class EnvelopeComputer
 
 		let lowpassCutoffDecayVolumeCompensation: number = 1;
 		let usedNoteSize: boolean = false;
-		for (let envelopeIndex: number = 0; envelopeIndex <= instrument.envelopeCount; envelopeIndex++)
-		{
+		for (let envelopeIndex: number = 0; envelopeIndex <= instrument.envelopeCount; envelopeIndex++) {
 			let automationTarget: AutomationTarget;
 			let targetIndex: number;
 			let envelope: Envelope;
-			if (envelopeIndex == instrument.envelopeCount)
-			{
+			if (envelopeIndex == instrument.envelopeCount) {
 				if (usedNoteSize /*|| !this._perNote*/) break;
 				// Special case: if no other envelopes used note size, default to applying it to note volume.
 				automationTarget = Config.instrumentAutomationTargets.dictionary["noteVolume"];
 				targetIndex = 0;
 				envelope = Config.envelopes.dictionary["note size"];
-			} else
-			{
+			} else {
 				let envelopeSettings: EnvelopeSettings = instrument.envelopes[envelopeIndex];
 				automationTarget = Config.instrumentAutomationTargets[envelopeSettings.target];
 				targetIndex = envelopeSettings.index;
 				envelope = Config.envelopes[envelopeSettings.envelope];
 				if (envelope.type == EnvelopeType.noteSize) usedNoteSize = true;
 			}
-			if ( /*automationTarget.perNote == this._perNote &&*/automationTarget.computeIndex != null)
-			{
+			if (/*automationTarget.perNote == this._perNote &&*/ automationTarget.computeIndex != null) {
 				const computeIndex: number = automationTarget.computeIndex + targetIndex;
-				let envelopeStart: number = EnvelopeComputer.computeEnvelope(envelope, noteSecondsStart, beatTimeStart, noteSizeStart);
-				let envelopeEnd: number = EnvelopeComputer.computeEnvelope(envelope, noteSecondsEnd, beatTimeEnd, noteSizeEnd);
+				let envelopeStart: number = EnvelopeComputer.computeEnvelope(
+					envelope,
+					noteSecondsStart,
+					beatTimeStart,
+					noteSizeStart
+				);
+				let envelopeEnd: number = EnvelopeComputer.computeEnvelope(
+					envelope,
+					noteSecondsEnd,
+					beatTimeEnd,
+					noteSizeEnd
+				);
 
-				if (prevSlideStart)
-				{
-					const other: number = EnvelopeComputer.computeEnvelope(envelope, prevNoteSecondsStart, beatTimeStart, prevNoteSize);
+				if (prevSlideStart) {
+					const other: number = EnvelopeComputer.computeEnvelope(
+						envelope,
+						prevNoteSecondsStart,
+						beatTimeStart,
+						prevNoteSize
+					);
 					envelopeStart += (other - envelopeStart) * prevSlideRatioStart;
 				}
-				if (prevSlideEnd)
-				{
-					const other: number = EnvelopeComputer.computeEnvelope(envelope, prevNoteSecondsEnd, beatTimeEnd, prevNoteSize);
+				if (prevSlideEnd) {
+					const other: number = EnvelopeComputer.computeEnvelope(
+						envelope,
+						prevNoteSecondsEnd,
+						beatTimeEnd,
+						prevNoteSize
+					);
 					envelopeEnd += (other - envelopeEnd) * prevSlideRatioEnd;
 				}
-				if (nextSlideStart)
-				{
+				if (nextSlideStart) {
 					const other: number = EnvelopeComputer.computeEnvelope(envelope, 0, beatTimeStart, nextNoteSize);
 					envelopeStart += (other - envelopeStart) * nextSlideRatioStart;
 				}
-				if (nextSlideEnd)
-				{
+				if (nextSlideEnd) {
 					const other: number = EnvelopeComputer.computeEnvelope(envelope, 0, beatTimeEnd, nextNoteSize);
 					envelopeEnd += (other - envelopeEnd) * nextSlideRatioEnd;
 				}
@@ -213,12 +223,19 @@ export class EnvelopeComputer
 				this.envelopeEnds[computeIndex] *= envelopeEnd;
 				this._modifiedEnvelopeIndices[this._modifiedEnvelopeCount++] = computeIndex;
 
-				if (automationTarget.isFilter)
-				{
-					const filterSettings: FilterSettings = /*this._perNote ?*/ (instrument.tmpNoteFilterStart != null) ? instrument.tmpNoteFilterStart : instrument.noteFilter /*: instrument.eqFilter*/;
-					if (filterSettings.controlPointCount > targetIndex && filterSettings.controlPoints[targetIndex].type == FilterType.lowPass)
-					{
-						lowpassCutoffDecayVolumeCompensation = Math.max(lowpassCutoffDecayVolumeCompensation, EnvelopeComputer.getLowpassCutoffDecayVolumeCompensation(envelope));
+				if (automationTarget.isFilter) {
+					const filterSettings: FilterSettings =
+						/*this._perNote ?*/ instrument.tmpNoteFilterStart != null
+							? instrument.tmpNoteFilterStart
+							: instrument.noteFilter; /*: instrument.eqFilter*/
+					if (
+						filterSettings.controlPointCount > targetIndex &&
+						filterSettings.controlPoints[targetIndex].type == FilterType.lowPass
+					) {
+						lowpassCutoffDecayVolumeCompensation = Math.max(
+							lowpassCutoffDecayVolumeCompensation,
+							EnvelopeComputer.getLowpassCutoffDecayVolumeCompensation(envelope)
+						);
 					}
 				}
 			}
@@ -247,10 +264,8 @@ export class EnvelopeComputer
 		this.lowpassCutoffDecayVolumeCompensation = lowpassCutoffDecayVolumeCompensation;
 	}
 
-	public clearEnvelopes(): void
-	{
-		for (let envelopeIndex: number = 0; envelopeIndex < this._modifiedEnvelopeCount; envelopeIndex++)
-		{
+	public clearEnvelopes(): void {
+		for (let envelopeIndex: number = 0; envelopeIndex < this._modifiedEnvelopeCount; envelopeIndex++) {
 			const computeIndex: number = this._modifiedEnvelopeIndices[envelopeIndex];
 			this.envelopeStarts[computeIndex] = 1;
 			this.envelopeEnds[computeIndex] = 1;
@@ -258,27 +273,34 @@ export class EnvelopeComputer
 		this._modifiedEnvelopeCount = 0;
 	}
 
-	public static computeEnvelope(envelope: Envelope, time: number, beats: number, noteSize: number): number
-	{
-		switch (envelope.type)
-		{
-			case EnvelopeType.noteSize: return Synth.noteSizeToVolumeMult(noteSize);
-			case EnvelopeType.none: return 1;
-			case EnvelopeType.twang: return 1 / (1 + time * envelope.speed);
-			case EnvelopeType.swell: return 1 - 1 / (1 + time * envelope.speed);
-			case EnvelopeType.tremolo: return 0.5 - Math.cos(beats * 2 * Math.PI * envelope.speed) * 0.5;
-			case EnvelopeType.tremolo2: return 0.75 - Math.cos(beats * 2 * Math.PI * envelope.speed) * 0.25;
-			case EnvelopeType.punch: return Math.max(1, 2 - time * 10);
-			case EnvelopeType.flare: const attack: number = 0.25 / Math.sqrt(envelope.speed); return time < attack ? time / attack : 1 / (1 + (time - attack) * envelope.speed);
-			case EnvelopeType.decay: return Math.pow(2, -envelope.speed * time);
-			default: throw new Error("Unrecognized operator envelope type.");
+	public static computeEnvelope(envelope: Envelope, time: number, beats: number, noteSize: number): number {
+		switch (envelope.type) {
+			case EnvelopeType.noteSize:
+				return Synth.noteSizeToVolumeMult(noteSize);
+			case EnvelopeType.none:
+				return 1;
+			case EnvelopeType.twang:
+				return 1 / (1 + time * envelope.speed);
+			case EnvelopeType.swell:
+				return 1 - 1 / (1 + time * envelope.speed);
+			case EnvelopeType.tremolo:
+				return 0.5 - Math.cos(beats * 2 * Math.PI * envelope.speed) * 0.5;
+			case EnvelopeType.tremolo2:
+				return 0.75 - Math.cos(beats * 2 * Math.PI * envelope.speed) * 0.25;
+			case EnvelopeType.punch:
+				return Math.max(1, 2 - time * 10);
+			case EnvelopeType.flare:
+				const attack: number = 0.25 / Math.sqrt(envelope.speed);
+				return time < attack ? time / attack : 1 / (1 + (time - attack) * envelope.speed);
+			case EnvelopeType.decay:
+				return Math.pow(2, -envelope.speed * time);
+			default:
+				throw new Error("Unrecognized operator envelope type.");
 		}
-
 	}
 
-	public static getLowpassCutoffDecayVolumeCompensation(envelope: Envelope): number
-	{
-		// This is a little hokey in the details, but I designed it a while ago and keep it 
+	public static getLowpassCutoffDecayVolumeCompensation(envelope: Envelope): number {
+		// This is a little hokey in the details, but I designed it a while ago and keep it
 		// around for compatibility. This decides how much to increase the volume (or
 		// expression) to compensate for a decaying lowpass cutoff to maintain perceived
 		// volume overall.
@@ -287,39 +309,34 @@ export class EnvelopeComputer
 		return 1;
 	}
 }
-export class EnvelopeSettings
-{
+
+export class EnvelopeSettings {
 	public target: number = 0;
 	public index: number = 0;
 	public envelope: number = 0;
 
-	constructor()
-	{
+	constructor() {
 		this.reset();
 	}
 
-	reset(): void
-	{
+	reset(): void {
 		this.target = 0;
 		this.index = 0;
 		this.envelope = 0;
 	}
 
-	public toJsonObject(): Object
-	{
+	public toJsonObject(): Object {
 		const envelopeObject: any = {
 			"target": Config.instrumentAutomationTargets[this.target].name,
-			"envelope": Config.envelopes[this.envelope].name,
+			"envelope": Config.envelopes[this.envelope].name
 		};
-		if (Config.instrumentAutomationTargets[this.target].maxCount > 1)
-		{
+		if (Config.instrumentAutomationTargets[this.target].maxCount > 1) {
 			envelopeObject["index"] = this.index;
 		}
 		return envelopeObject;
 	}
 
-	public fromJsonObject(envelopeObject: any): void
-	{
+	public fromJsonObject(envelopeObject: any): void {
 		this.reset();
 
 		let target: AutomationTarget = Config.instrumentAutomationTargets.dictionary[envelopeObject["target"]];
@@ -330,13 +347,14 @@ export class EnvelopeSettings
 		if (envelope == null) envelope = Config.envelopes.dictionary["none"];
 		this.envelope = envelope.index;
 
-		if (envelopeObject["index"] != undefined)
-		{
-			this.index = clamp(0, Config.instrumentAutomationTargets[this.target].maxCount, envelopeObject["index"] | 0);
-		} else
-		{
+		if (envelopeObject["index"] != undefined) {
+			this.index = clamp(
+				0,
+				Config.instrumentAutomationTargets[this.target].maxCount,
+				envelopeObject["index"] | 0
+			);
+		} else {
 			this.index = 0;
 		}
 	}
 }
-

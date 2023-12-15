@@ -1,41 +1,43 @@
+/** @format */
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import {Scale, Config} from "../synth/SynthConfig";
+import { Scale, Config } from "../synth/SynthConfig";
 
 export class Preferences {
 	public static readonly defaultVisibleOctaves: number = 3;
-	
-	public autoPlay: boolean;
-	public autoFollow: boolean;
-	public enableNotePreview: boolean;
-	public showFifth: boolean;
-	public notesOutsideScale: boolean;
-	public defaultScale: number;
-	public showLetters: boolean;
-	public showChannels: boolean;
-	public showScrollBar: boolean;
-	public alwaysFineNoteVol: boolean;
-	public displayVolumeBar: boolean;
-	public instrumentCopyPaste: boolean;
-	public enableChannelMuting: boolean;
-	public colorTheme: string;
-	public layout: string;
-	public displayBrowserUrl: boolean;
+
+	public autoPlay: boolean = false;
+	public autoFollow: boolean = false;
+	public enableNotePreview: boolean = false;
+	public showFifth: boolean = false;
+	public notesOutsideScale: boolean = false;
+	public defaultScale: number = 1;
+	public showLetters: boolean = false;
+	public showChannels: boolean = false;
+	public showScrollBar: boolean = false;
+	public alwaysFineNoteVol: boolean = false;
+	public displayVolumeBar: boolean = false;
+	public instrumentCopyPaste: boolean = false;
+	public enableChannelMuting: boolean = false;
+	public colorTheme: string = "";
+	public layout: string = "";
+	public displayBrowserUrl: boolean = false;
 	public volume: number = 75;
 	public visibleOctaves: number = Preferences.defaultVisibleOctaves;
-	public pressControlForShortcuts: boolean;
-	public keyboardLayout: string;
-	public enableMidi: boolean;
-	public showRecordButton: boolean;
-	public snapRecordedNotesToRhythm: boolean;
-	public ignorePerformedNotesNotInScale: boolean;
-	public metronomeCountIn: boolean;
-	public metronomeWhileRecording: boolean;
-	
+	public pressControlForShortcuts: boolean = false;
+	public keyboardLayout: string = "";
+	public enableMidi: boolean = false;
+	public showRecordButton: boolean = false;
+	public snapRecordedNotesToRhythm: boolean = false;
+	public ignorePerformedNotesNotInScale: boolean = false;
+	public metronomeCountIn: boolean = false;
+	public metronomeWhileRecording: boolean = false;
+
 	constructor() {
 		this.reload();
 	}
-	
+
 	public reload(): void {
 		this.autoPlay = window.localStorage.getItem("autoPlay") == "true";
 		this.autoFollow = window.localStorage.getItem("autoFollow") != "false";
@@ -60,21 +62,22 @@ export class Preferences {
 		this.keyboardLayout = window.localStorage.getItem("keyboardLayout") || "wickiHayden";
 		this.layout = window.localStorage.getItem("layout") || "small";
 		this.colorTheme = window.localStorage.getItem("colorTheme") || "dark classic";
-		this.visibleOctaves = ((<any>window.localStorage.getItem("visibleOctaves")) >>> 0) || Preferences.defaultVisibleOctaves;
-		
+		this.visibleOctaves =
+			(<any>window.localStorage.getItem("visibleOctaves")) >>> 0 || Preferences.defaultVisibleOctaves;
+
 		const defaultScale: Scale | undefined = Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
-		this.defaultScale = (defaultScale != undefined) ? defaultScale.index : 0;
-		
+		this.defaultScale = defaultScale != undefined ? defaultScale.index : 0;
+
 		if (window.localStorage.getItem("volume") != null) {
-			this.volume = Math.min(<any>window.localStorage.getItem("volume") >>> 0, 75);
+			this.volume = Math.min((<any>window.localStorage.getItem("volume")) >>> 0, 75);
 		}
-		
+
 		if (window.localStorage.getItem("fullScreen") != null) {
 			if (window.localStorage.getItem("fullScreen") == "true") this.layout = "long";
 			window.localStorage.removeItem("fullScreen");
 		}
 	}
-	
+
 	public save(): void {
 		window.localStorage.setItem("autoPlay", this.autoPlay ? "true" : "false");
 		window.localStorage.setItem("autoFollow", this.autoFollow ? "true" : "false");
@@ -94,7 +97,10 @@ export class Preferences {
 		window.localStorage.setItem("enableMidi", this.enableMidi ? "true" : "false");
 		window.localStorage.setItem("showRecordButton", this.showRecordButton ? "true" : "false");
 		window.localStorage.setItem("snapRecordedNotesToRhythm", this.snapRecordedNotesToRhythm ? "true" : "false");
-		window.localStorage.setItem("ignorePerformedNotesNotInScale", this.ignorePerformedNotesNotInScale ? "true" : "false");
+		window.localStorage.setItem(
+			"ignorePerformedNotesNotInScale",
+			this.ignorePerformedNotesNotInScale ? "true" : "false"
+		);
 		window.localStorage.setItem("metronomeCountIn", this.metronomeCountIn ? "true" : "false");
 		window.localStorage.setItem("metronomeWhileRecording", this.metronomeWhileRecording ? "true" : "false");
 		window.localStorage.setItem("keyboardLayout", this.keyboardLayout);

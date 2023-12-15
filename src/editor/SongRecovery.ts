@@ -1,9 +1,10 @@
+/** @format */
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
 import { Dictionary } from "../synth/SynthConfig";
 import { Song } from "../synth/Song";
 
-	
 export interface RecoveredVersion {
 	uid: string;
 	time: number;
@@ -44,12 +45,12 @@ function compareSongs(a: RecoveredSong, b: RecoveredSong): number {
 function compareVersions(a: RecoveredVersion, b: RecoveredVersion): number {
 	return b.time - a.time;
 }
-		
+
 export class SongRecovery {
-	private _saveVersionTimeoutHandle: ReturnType<typeof setTimeout>;
-		
+	private _saveVersionTimeoutHandle: ReturnType<typeof setTimeout> = -1;
+
 	private _song: Song = new Song();
-		
+
 	public static getAllRecoveredSongs(): RecoveredSong[] {
 		const songs: RecoveredSong[] = [];
 		const songsByUid: Dictionary<RecoveredSong> = {};
@@ -59,7 +60,7 @@ export class SongRecovery {
 				const version: RecoveredVersion = keyToVersion(itemKey);
 				let song: RecoveredSong | undefined = songsByUid[version.uid];
 				if (song == undefined) {
-						song = {versions: []};
+					song = { versions: [] };
 					songsByUid[version.uid] = song;
 					songs.push(song);
 				}
@@ -72,21 +73,23 @@ export class SongRecovery {
 		songs.sort(compareSongs);
 		return songs;
 	}
-		
+
 	public saveVersion(uid: string, name: string, songData: string): void {
 		const newName: string = name;
 		const newTime: number = Math.round(Date.now());
-			
+
 		clearTimeout(this._saveVersionTimeoutHandle);
 		this._saveVersionTimeoutHandle = setTimeout((): void => {
 			try {
 				// Ensure that the song is not corrupted.
 				this._song.fromBase64String(songData);
 			} catch (error) {
-				window.alert("Whoops, the song data appears to have been corrupted! Please try to recover the last working version of the song from the \"Recover Recent Song...\" option in BeepBox's \"File\" menu.");
+				window.alert(
+					'Whoops, the song data appears to have been corrupted! Please try to recover the last working version of the song from the "Recover Recent Song..." option in BeepBox\'s "File" menu.'
+				);
 				return;
 			}
-				
+
 			const songs: RecoveredSong[] = SongRecovery.getAllRecoveredSongs();
 			let currentSong: RecoveredSong | null = null;
 			for (const song of songs) {
@@ -95,29 +98,29 @@ export class SongRecovery {
 				}
 			}
 			if (currentSong == null) {
-					currentSong = {versions: []};
+				currentSong = { versions: [] };
 				songs.unshift(currentSong);
 			}
 			let versions: RecoveredVersion[] = currentSong.versions;
-				
+
 			let newWork: number = 1000; // default to 1 second of work for the first change.
 			if (versions.length > 0) {
 				const mostRecentTime: number = versions[0].time;
 				const mostRecentWork: number = versions[0].work;
 				newWork = mostRecentWork + Math.min(maximumWorkPerVersion, newTime - mostRecentTime);
 			}
-				
+
 			const newVersion: RecoveredVersion = { uid: uid, name: newName, time: newTime, work: newWork };
 			const newKey: string = versionToKey(newVersion);
 			versions.unshift(newVersion);
 			localStorage.setItem(newKey, songData);
-				
+
 			// Consider deleting an old version to free up space.
 			let minSpan: number = minimumWorkPerSpan; // start out with a gap between versions.
 			const spanMult: number = Math.pow(2, 1 / 2); // Double the span every 2 versions back.
 			for (var i: number = 1; i < versions.length; i++) {
 				const currentWork: number = versions[i].work;
-				const olderWork: number = (i == versions.length - 1) ? 0.0 : versions[i + 1].work;
+				const olderWork: number = i == versions.length - 1 ? 0.0 : versions[i + 1].work;
 				// If not enough work happened between two versions, discard one of them.
 				if (currentWork - olderWork < minSpan) {
 					let indexToDiscard: number = i;
@@ -130,7 +133,7 @@ export class SongRecovery {
 						// there is a large gap of time between the newest and middle one, in
 						// which case the middle one represents the end of a span of work and is
 						// thus more memorable.
-						if ((currentTime - olderTime) < 0.5 * (newerTime - currentTime)) {
+						if (currentTime - olderTime < 0.5 * (newerTime - currentTime)) {
 							indexToDiscard = i + 1;
 						}
 					}
@@ -139,7 +142,7 @@ export class SongRecovery {
 				}
 				minSpan *= spanMult;
 			}
-				
+
 			// If there are too many songs, discard the least important ones.
 			// Songs that are older, or have less work, are less important.
 			while (songs.length > maximumSongCount) {
@@ -150,7 +153,7 @@ export class SongRecovery {
 					const timePassed: number = newTime - song.versions[0].time;
 					// Convert the time into a factor of 12 hours, add one, then divide by the result.
 					// This creates a curve that starts at 1, and then gradually drops off.
-					const timeScale: number = 1.0 / ((timePassed / (12 * 60 * 60 * 1000)) + 1.0);
+					const timeScale: number = 1.0 / (timePassed / (12 * 60 * 60 * 1000) + 1.0);
 					// Add 5 minutes of work, to balance out simple songs a little bit.
 					const adjustedWork: number = song.versions[0].work + 5 * 60 * 1000;
 					const weight: number = adjustedWork * timeScale;

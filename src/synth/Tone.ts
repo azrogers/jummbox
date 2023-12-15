@@ -1,13 +1,13 @@
+/** @format */
+
 import { Config, OperatorWave } from "./SynthConfig";
 import { DynamicBiquadFilter } from "./filtering";
 import { Note } from "./Note";
 import { PickedString } from "./PickedString";
 import { EnvelopeComputer } from "./Envelope";
 
-
-export class Tone
-{
-	public instrumentIndex: number;
+export class Tone {
+	public instrumentIndex: number = 0;
 	public readonly pitches: number[] = Array(Config.maxChordSize).fill(0);
 	public pitchCount: number = 0;
 	public chordSize: number = 0;
@@ -68,33 +68,28 @@ export class Tone
 	public filterResonanceDelta: number = 0;
 	public isFirstOrder: boolean = false;
 
-	public readonly envelopeComputer: EnvelopeComputer = new EnvelopeComputer( /*true*/);
+	public readonly envelopeComputer: EnvelopeComputer = new EnvelopeComputer(/*true*/);
 
-	constructor()
-	{
+	constructor() {
 		this.reset();
 	}
 
-	public reset(): void
-	{
+	public reset(): void {
 		this.noiseSample = 0;
-		for (let i: number = 0; i < Config.maxPitchOrOperatorCount; i++)
-		{
+		for (let i: number = 0; i < Config.maxPitchOrOperatorCount; i++) {
 			this.phases[i] = 0;
 			this.operatorWaves[i] = Config.operatorWaves[0];
 			this.feedbackOutputs[i] = 0;
 			this.prevPitchExpressions[i] = null;
 		}
-		for (let i: number = 0; i < this.noteFilterCount; i++)
-		{
+		for (let i: number = 0; i < this.noteFilterCount; i++) {
 			this.noteFilters[i].resetOutput();
 		}
 		this.noteFilterCount = 0;
 		this.initialNoteFilterInput1 = 0;
 		this.initialNoteFilterInput2 = 0;
 		this.liveInputSamplesHeld = 0;
-		for (const pickedString of this.pickedStrings)
-		{
+		for (const pickedString of this.pickedStrings) {
 			pickedString.reset();
 		}
 		this.envelopeComputer.reset();

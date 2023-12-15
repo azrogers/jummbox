@@ -522,10 +522,10 @@ export class Synth {
 	}
 
 	public samplesPerSecond: number = 44100;
-	public panningDelayBufferSize: number;
-	public panningDelayBufferMask: number;
-	public chorusDelayBufferSize: number;
-	public chorusDelayBufferMask: number;
+	public panningDelayBufferSize: number = 0;
+	public panningDelayBufferMask: number = 0;
+	public chorusDelayBufferSize: number = 0;
+	public chorusDelayBufferMask: number = 0;
 	// TODO: reverb
 
 	public song: Song | null = null;

@@ -26,6 +26,8 @@ import { SongDocument } from "./SongDocument";
 import { ExportPrompt } from "./ExportPrompt";
 import { ChangePreset } from "./changes";
 import { Doc } from "./GlobalDoc";
+import $ from "jquery";
+import select2 from "select2";
 
 const editor: SongEditor = new SongEditor();
 const beepboxEditorContainer: HTMLElement = document.getElementById("beepboxEditorContainer")!;
@@ -168,7 +170,7 @@ export {
 	ChangePreset
 };
 
-window["beepbox"] = {
+(window as any)["beepbox"] = {
 	Config,
 	Synth
 };

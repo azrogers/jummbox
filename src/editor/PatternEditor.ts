@@ -95,24 +95,24 @@ export class PatternEditor {
 	private readonly _backgroundDrumRow: SVGRectElement = SVG.rect();
 	private readonly _backgroundModRow: SVGRectElement = SVG.rect();
 
-	private _editorWidth: number;
+	private _editorWidth: number = 0;
 
 	private _modDragValueLabelLeft: number = 0;
 	private _modDragValueLabelTop: number = 0;
 	private _modDragValueLabelWidth: number = 0;
 	public editingModLabel: boolean = false;
 	private _modDragStartValue: number = 0;
-	private _modDragPin: NotePin;
-	private _modDragNote: Note;
-	private _modDragSetting: number;
+	private _modDragPin: NotePin | null = null;
+	private _modDragNote: Note | null = null;
+	private _modDragSetting: number = 0;
 	private _modDragLowerBound: number = 0;
 	private _modDragUpperBound: number = 6;
 
-	private _editorHeight: number;
-	private _partWidth: number;
+	private _editorHeight: number = 0;
+	private _partWidth: number = 0;
 	private _pitchHeight: number = -1;
-	private _pitchBorder: number;
-	private _pitchCount: number;
+	private _pitchBorder: number = 0;
+	private _pitchCount: number = 0;
 	private _mouseX: number = 0;
 	private _mouseY: number = 0;
 	private _mouseDown: boolean = false;
@@ -121,7 +121,7 @@ export class PatternEditor {
 	private _mouseHorizontal: boolean = false;
 	private _usingTouch: boolean = false;
 	private _copiedPinChannels: NotePin[][] = [];
-	private _copiedPins: NotePin[];
+	private _copiedPins: NotePin[] = [];
 	private _mouseXStart: number = 0;
 	private _mouseYStart: number = 0;
 	private _touchTime: number = 0;
@@ -254,6 +254,10 @@ export class PatternEditor {
 		// Special case - when user is typing a number between zero and min, allow it (the alternative is quite annoying, when min is nonzero)
 		let converted: number = Number(label.innerText);
 		if (!isNaN(converted) && converted >= 0 && converted < this._modDragLowerBound) return;
+
+		if (this._modDragPin == null || this._modDragNote == null) {
+			return;
+		}
 
 		// Another special case - allow "" e.g. the empty string and a single negative sign, but don't do anything about it.
 		if (label.innerText != "" && label.innerText != "-") {
@@ -881,7 +885,7 @@ export class PatternEditor {
 	};
 
 	public stopEditingModLabel(discardChanges: boolean) {
-		if (this.editingModLabel) {
+		if (this.editingModLabel && this._modDragPin != null && this._modDragNote != null) {
 			this.editingModLabel = false;
 			this.modDragValueLabel.style.setProperty("pointer-events", "none");
 

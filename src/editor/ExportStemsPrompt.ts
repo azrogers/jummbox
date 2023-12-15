@@ -7,8 +7,9 @@ import { ColorConfig } from "./ColorConfig";
 import { SongDocument } from "./SongDocument";
 import { Prompt } from "./Prompt";
 import { HTML } from "imperative-html/dist/esm/elements-strict";
-import lamejs from "lamejs";
 import zipjs, { ZipWriter } from "@zip.js/zip.js";
+// @ts-ignore
+import lamejs from "lamejs";
 
 const { button, div, h2, input, select, option } = HTML;
 
@@ -46,13 +47,13 @@ function save(blob: Blob, name: string): void {
 }
 
 export class ExportStemsPrompt implements Prompt {
-	private synth: Synth;
-	private thenExportTo: string;
-	private recordedSamplesL: Float32Array;
-	private recordedSamplesR: Float32Array;
-	private sampleFrames: number;
-	private totalChunks: number;
-	private currentChunk: number;
+	private synth: Synth | null = null;
+	private thenExportTo: string = "";
+	private recordedSamplesL: Float32Array = new Float32Array();
+	private recordedSamplesR: Float32Array = new Float32Array();
+	private sampleFrames: number = 0;
+	private totalChunks: number = 0;
+	private currentChunk: number = 0;
 	private outputStarted: boolean = false;
 	private cachedMutes: { [index: number]: boolean } = {};
 	private readonly _fileName: HTMLInputElement = input({
@@ -286,7 +287,7 @@ export class ExportStemsPrompt implements Prompt {
 		//const timer: number = performance.now();
 
 		// If output was stopped e.g. user clicked the close button, abort.
-		if (this.outputStarted == false) {
+		if (this.outputStarted == false || this.synth == null) {
 			return true;
 		}
 
@@ -426,7 +427,7 @@ export class ExportStemsPrompt implements Prompt {
 
 	private async _exportToWavFinish(): Promise<Blob> {
 		const sampleFrames: number = this.recordedSamplesL.length;
-		const sampleRate: number = this.synth.samplesPerSecond;
+		const sampleRate: number = this.synth?.samplesPerSecond ?? 0;
 
 		const wavChannelCount: number = 2;
 		const bytesPerSample: number = 2;
@@ -505,7 +506,7 @@ export class ExportStemsPrompt implements Prompt {
 		const channelCount: number = 2;
 		const kbps: number = 192;
 		const sampleBlockSize: number = 1152;
-		const mp3encoder: any = new lamejs.Mp3Encoder(channelCount, this.synth.samplesPerSecond, kbps);
+		const mp3encoder: any = new lamejs.Mp3Encoder(channelCount, this.synth?.samplesPerSecond ?? 0, kbps);
 		const mp3Data: any[] = [];
 
 		const left: Int16Array = new Int16Array(this.recordedSamplesL.length);

@@ -3,6 +3,8 @@
  *
  * @format
  */
+declare module "lamejs";
+
 export function Mp3Encoder(channels: any, samplerate: any, kbps: any, ...args: any[]): any;
 
 export function WavHeader(): void;

@@ -123,6 +123,7 @@ import {
 	ChangeAliasing
 } from "./changes";
 import { Doc } from "./GlobalDoc";
+import $ from "jquery";
 
 import { TrackEditor } from "./TrackEditor";
 import { ExportStemsPrompt } from "./ExportStemsPrompt";
@@ -2294,9 +2295,9 @@ export class SongEditor {
 					channel: number,
 					instrument: number
 				): boolean {
-					if (editor._doc.synth.isModActive(setting, channel, instrument)) {
+					if (Doc.synth.isModActive(setting, channel, instrument)) {
 						let currentVal: number =
-							(editor._doc.synth.getModValue(setting, channel, instrument, false) -
+							(Doc.synth.getModValue(setting, channel, instrument, false) -
 								Config.modulators[setting].convertRealFactor) /
 							Config.modulators[setting].maxRawVol;
 						if (currentVal != editor._modSliderValues[setting]) {
@@ -3443,15 +3444,15 @@ export class SongEditor {
 				//Hide instrument select if channel is "none" or "song"
 				if (instrument.modChannels[mod] < 0) {
 					(this._modInstrumentBoxes[mod].parentElement as HTMLDivElement).style.display = "none";
-					$("#modInstrumentText" + mod).get(0).style.display = "none";
-					$("#modChannelText" + mod).get(0).innerText = "Channel:";
+					$("#modInstrumentText" + mod).css("display", "none");
+					$("#modChannelText" + mod).text("Channel:");
 
 					//Hide setting select if channel is "none"
 					if (instrument.modChannels[mod] == -2) {
-						$("#modSettingText" + mod).get(0).style.display = "none";
+						$("#modSettingText" + mod).css("display", "none");
 						(this._modSetBoxes[mod].parentElement as HTMLDivElement).style.display = "none";
 					} else {
-						$("#modSettingText" + mod).get(0).style.display = "";
+						$("#modSettingText" + mod).css("display", "");
 						(this._modSetBoxes[mod].parentElement as HTMLDivElement).style.display = "";
 					}
 
@@ -3460,9 +3461,9 @@ export class SongEditor {
 				} else {
 					(this._modInstrumentBoxes[mod].parentElement as HTMLDivElement).style.display =
 						channel.instruments.length > 1 ? "" : "none";
-					$("#modInstrumentText" + mod).get(0).style.display = channel.instruments.length > 1 ? "" : "none";
-					$("#modChannelText" + mod).get(0).innerText = channel.instruments.length > 1 ? "Ch:" : "Channel:";
-					$("#modSettingText" + mod).get(0).style.display = "";
+					$("#modInstrumentText" + mod).css("display", channel.instruments.length > 1 ? "" : "none");
+					$("#modChannelText" + mod).text(channel.instruments.length > 1 ? "Ch:" : "Channel:");
+					$("#modSettingText" + mod).css("display", "");
 					(this._modSetBoxes[mod].parentElement as HTMLDivElement).style.display = "";
 
 					this._modTargetIndicators[mod].style.setProperty("fill", ColorConfig.indicatorPrimary);
@@ -3471,10 +3472,8 @@ export class SongEditor {
 
 				let filterType: string = Config.modulators[instrument.modulators[mod]].name;
 				if (filterType == "eq filter" || filterType == "note filter") {
-					$("#modFilterText" + mod).get(0).style.display = "";
-					$("#modSettingText" + mod)
-						.get(0)
-						.style.setProperty("margin-bottom", "2px");
+					$("#modFilterText" + mod).css("display", "");
+					$("#modSettingText" + mod).css("margin-bottom", "2px");
 
 					let useInstrument: number = instrument.modInstruments[mod];
 					let modChannel: Channel = Doc.song.channels[Math.max(0, instrument.modChannels[mod])];
@@ -3538,10 +3537,15 @@ export class SongEditor {
 						this._modFilterBoxes[mod].selectedIndex = instrument.modFilterTypes[mod];
 					}
 				} else {
-					$("#modFilterText" + mod).get(0).style.display = "none";
-					$("#modSettingText" + mod)
-						.get(0)
-						.style.setProperty("margin-bottom", "0.9em");
+					let filterText = $("#modFilterText" + mod).get(0);
+					if (filterText) {
+						filterText.style.display = "none";
+					}
+
+					let settingText = $("#modSettingText" + mod).get(0);
+					if (settingText) {
+						settingText.style.setProperty("margin-bottom", "0.9em");
+					}
 				}
 			}
 

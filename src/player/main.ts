@@ -1,6 +1,17 @@
+/** @format */
+
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { Dictionary, DictionaryArray, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config } from "../synth/SynthConfig";
+import {
+	Dictionary,
+	DictionaryArray,
+	EnvelopeType,
+	InstrumentType,
+	Transition,
+	Chord,
+	Envelope,
+	Config
+} from "../synth/SynthConfig";
 import { ColorConfig } from "../editor/ColorConfig";
 import { Channel, Synth } from "../synth/synth";
 import { Instrument } from "../synth/Instrument";
@@ -9,10 +20,13 @@ import { NotePin } from "../synth/Note";
 import { Note } from "../synth/Note";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 
-	const {a, button, div, h1, input} = HTML;
-	const {svg, circle, rect, path} = SVG;
+const { a, button, div, h1, input } = HTML;
+const { svg, circle, rect, path } = SVG;
 
-	document.head.appendChild(HTML.style({type: "text/css"}, `
+document.head.appendChild(
+	HTML.style(
+		{ type: "text/css" },
+		`
 	body {
 		color: ${ColorConfig.primaryText};
 		background: ${ColorConfig.editorBackground};
@@ -149,7 +163,9 @@ import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 		background: ${ColorConfig.primaryText};
 		cursor: pointer;
 	}
-`));
+`
+	)
+);
 
 ColorConfig.setTheme(window.localStorage.getItem("colorTheme") || "jummbox classic");
 
@@ -163,58 +179,133 @@ let outVolumeHistoricTimer: number = 0;
 let outVolumeHistoricCap: number = 0;
 
 const synth: Synth = new Synth();
-let titleText: HTMLHeadingElement = h1({ style: "flex-grow: 1; margin: 0 1px; margin-left: 10px; overflow: hidden;" }, "");
-	let editLink: HTMLAnchorElement = a({target: "_top", style: "margin: 0 4px;"}, "✎ Edit");
-	let copyLink: HTMLAnchorElement = a({href: "javascript:void(0)", style: "margin: 0 4px;"}, "⎘ Copy URL");
-	let shareLink: HTMLAnchorElement = a({href: "javascript:void(0)", style: "margin: 0 4px;"}, "⤳ Share");
-	let fullscreenLink: HTMLAnchorElement = a({target: "_top", style: "margin: 0 4px;"}, "⇱ Fullscreen");
+let titleText: HTMLHeadingElement = h1(
+	{ style: "flex-grow: 1; margin: 0 1px; margin-left: 10px; overflow: hidden;" },
+	""
+);
+let editLink: HTMLAnchorElement = a({ target: "_top", style: "margin: 0 4px;" }, "✎ Edit");
+let copyLink: HTMLAnchorElement = a({ href: "javascript:void(0)", style: "margin: 0 4px;" }, "⎘ Copy URL");
+let shareLink: HTMLAnchorElement = a({ href: "javascript:void(0)", style: "margin: 0 4px;" }, "⤳ Share");
+let fullscreenLink: HTMLAnchorElement = a({ target: "_top", style: "margin: 0 4px;" }, "⇱ Fullscreen");
 
 let draggingPlayhead: boolean = false;
-	const playButton: HTMLButtonElement = button({style: "width: 100%; height: 100%; max-height: 50px;"});
-	const playButtonContainer: HTMLDivElement = div({style: "flex-shrink: 0; display: flex; padding: 2px; width: 80px; height: 100%; box-sizing: border-box; align-items: center;"},
-	playButton,
+const playButton: HTMLButtonElement = button({ style: "width: 100%; height: 100%; max-height: 50px;" });
+const playButtonContainer: HTMLDivElement = div(
+	{
+		style: "flex-shrink: 0; display: flex; padding: 2px; width: 80px; height: 100%; box-sizing: border-box; align-items: center;"
+	},
+	playButton
 );
-	const loopIcon: SVGPathElement = path({d: "M 4 2 L 4 0 L 7 3 L 4 6 L 4 4 Q 2 4 2 6 Q 2 8 4 8 L 4 10 Q 0 10 0 6 Q 0 2 4 2 M 8 10 L 8 12 L 5 9 L 8 6 L 8 8 Q 10 8 10 6 Q 10 4 8 4 L 8 2 Q 12 2 12 6 Q 12 10 8 10 z"});
-	const loopButton: HTMLButtonElement = button({title: "loop", style: "background: none; flex: 0 0 12px; margin: 0 3px; width: 12px; height: 12px; display: flex;"}, svg({width: 12, height: 12, viewBox: "0 0 12 12"},
-	loopIcon,
-));
-
-	const volumeIcon: SVGSVGElement = svg({style: "flex: 0 0 12px; margin: 0 1px; width: 12px; height: 12px;", viewBox: "0 0 12 12"},
-		path({fill: ColorConfig.uiWidgetBackground, d: "M 1 9 L 1 3 L 4 3 L 7 0 L 7 12 L 4 9 L 1 9 M 9 3 Q 12 6 9 9 L 8 8 Q 10.5 6 8 4 L 9 3 z"}),
-);
-const volumeSlider: HTMLInputElement = input({ title: "volume", type: "range", value: 75, min: 0, max: 75, step: 1, style: "width: 12vw; max-width: 100px; margin: 0 1px;" });
-
-	const zoomIcon: SVGSVGElement = svg({width: 12, height: 12, viewBox: "0 0 12 12"},
-		circle({cx: "5", cy: "5", r: "4.5", "stroke-width": "1", stroke: "currentColor", fill: "none"}),
-		path({stroke: "currentColor", "stroke-width": "2", d: "M 8 8 L 11 11 M 5 2 L 5 8 M 2 5 L 8 5", fill: "none"}),
-);
-	const zoomButton: HTMLButtonElement = button({title: "zoom", style: "background: none; flex: 0 0 12px; margin: 0 3px; width: 12px; height: 12px; display: flex;"},
-	zoomIcon,
+const loopIcon: SVGPathElement = path({
+	d: "M 4 2 L 4 0 L 7 3 L 4 6 L 4 4 Q 2 4 2 6 Q 2 8 4 8 L 4 10 Q 0 10 0 6 Q 0 2 4 2 M 8 10 L 8 12 L 5 9 L 8 6 L 8 8 Q 10 8 10 6 Q 10 4 8 4 L 8 2 Q 12 2 12 6 Q 12 10 8 10 z"
+});
+const loopButton: HTMLButtonElement = button(
+	{
+		title: "loop",
+		style: "background: none; flex: 0 0 12px; margin: 0 3px; width: 12px; height: 12px; display: flex;"
+	},
+	svg({ width: 12, height: 12, viewBox: "0 0 12 12" }, loopIcon)
 );
 
-	const timeline: SVGSVGElement = svg({style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;"});
-	const playhead: HTMLDivElement = div({style: `position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: ${ColorConfig.playhead}; pointer-events: none;`});
-	const timelineContainer: HTMLDivElement = div({style: "display: flex; flex-grow: 1; flex-shrink: 1; position: relative;"}, timeline, playhead);
-	const visualizationContainer: HTMLDivElement = div({style: "display: flex; flex-grow: 1; flex-shrink: 1; height: 0; position: relative; align-items: center; overflow: hidden;"}, timelineContainer);
+const volumeIcon: SVGSVGElement = svg(
+	{ style: "flex: 0 0 12px; margin: 0 1px; width: 12px; height: 12px;", viewBox: "0 0 12 12" },
+	path({
+		fill: ColorConfig.uiWidgetBackground,
+		d: "M 1 9 L 1 3 L 4 3 L 7 0 L 7 12 L 4 9 L 1 9 M 9 3 Q 12 6 9 9 L 8 8 Q 10.5 6 8 4 L 9 3 z"
+	})
+);
+const volumeSlider: HTMLInputElement = input({
+	title: "volume",
+	type: "range",
+	value: 75,
+	min: 0,
+	max: 75,
+	step: 1,
+	style: "width: 12vw; max-width: 100px; margin: 0 1px;"
+});
 
-const outVolumeBarBg: SVGRectElement = SVG.rect({ "pointer-events": "none", width: "90%", height: "50%", x: "5%", y: "25%", fill: ColorConfig.uiWidgetBackground });
-const outVolumeBar: SVGRectElement = SVG.rect({ "pointer-events": "none", height: "50%", width: "0%", x: "5%", y: "25%", fill: "url('#volumeGrad2')" });
-const outVolumeCap: SVGRectElement = SVG.rect({ "pointer-events": "none", width: "2px", height: "50%", x: "5%", y: "25%", fill: ColorConfig.uiWidgetFocus });
+const zoomIcon: SVGSVGElement = svg(
+	{ width: 12, height: 12, viewBox: "0 0 12 12" },
+	circle({ cx: "5", cy: "5", r: "4.5", "stroke-width": "1", stroke: "currentColor", fill: "none" }),
+	path({ stroke: "currentColor", "stroke-width": "2", d: "M 8 8 L 11 11 M 5 2 L 5 8 M 2 5 L 8 5", fill: "none" })
+);
+const zoomButton: HTMLButtonElement = button(
+	{
+		title: "zoom",
+		style: "background: none; flex: 0 0 12px; margin: 0 3px; width: 12px; height: 12px; display: flex;"
+	},
+	zoomIcon
+);
+
+const timeline: SVGSVGElement = svg({ style: "min-width: 0; min-height: 0; touch-action: pan-y pinch-zoom;" });
+const playhead: HTMLDivElement = div({
+	style: `position: absolute; left: 0; top: 0; width: 2px; height: 100%; background: ${ColorConfig.playhead}; pointer-events: none;`
+});
+const timelineContainer: HTMLDivElement = div(
+	{ style: "display: flex; flex-grow: 1; flex-shrink: 1; position: relative;" },
+	timeline,
+	playhead
+);
+const visualizationContainer: HTMLDivElement = div(
+	{
+		style: "display: flex; flex-grow: 1; flex-shrink: 1; height: 0; position: relative; align-items: center; overflow: hidden;"
+	},
+	timelineContainer
+);
+
+const outVolumeBarBg: SVGRectElement = SVG.rect({
+	"pointer-events": "none",
+	width: "90%",
+	height: "50%",
+	x: "5%",
+	y: "25%",
+	fill: ColorConfig.uiWidgetBackground
+});
+const outVolumeBar: SVGRectElement = SVG.rect({
+	"pointer-events": "none",
+	height: "50%",
+	width: "0%",
+	x: "5%",
+	y: "25%",
+	fill: "url('#volumeGrad2')"
+});
+const outVolumeCap: SVGRectElement = SVG.rect({
+	"pointer-events": "none",
+	width: "2px",
+	height: "50%",
+	x: "5%",
+	y: "25%",
+	fill: ColorConfig.uiWidgetFocus
+});
 const stop1: SVGStopElement = SVG.stop({ "stop-color": "lime", offset: "60%" });
 const stop2: SVGStopElement = SVG.stop({ "stop-color": "orange", offset: "90%" });
 const stop3: SVGStopElement = SVG.stop({ "stop-color": "red", offset: "100%" });
-const gradient: SVGGradientElement = SVG.linearGradient({ id: "volumeGrad2", gradientUnits: "userSpaceOnUse" }, stop1, stop2, stop3);
+const gradient: SVGGradientElement = SVG.linearGradient(
+	{ id: "volumeGrad2", gradientUnits: "userSpaceOnUse" },
+	stop1,
+	stop2,
+	stop3
+);
 const defs: SVGDefsElement = SVG.defs({}, gradient);
-const volumeBarContainer: SVGSVGElement = SVG.svg({ style: `touch-action: none; overflow: hidden; margin: auto;`, width: "160px", height: "10px", preserveAspectRatio: "none" },
+const volumeBarContainer: SVGSVGElement = SVG.svg(
+	{
+		style: `touch-action: none; overflow: hidden; margin: auto;`,
+		width: "160px",
+		height: "10px",
+		preserveAspectRatio: "none"
+	},
 	defs,
 	outVolumeBarBg,
 	outVolumeBar,
-	outVolumeCap,
+	outVolumeCap
 );
 
 document.body.appendChild(visualizationContainer);
 document.body.appendChild(
-		div({style: `flex-shrink: 0; height: 20vh; min-height: 22px; max-height: 70px; display: flex; align-items: center;`},
+	div(
+		{
+			style: `flex-shrink: 0; height: 20vh; min-height: 22px; max-height: 70px; display: flex; align-items: center;`
+		},
 		playButtonContainer,
 		loopButton,
 		volumeIcon,
@@ -225,8 +316,8 @@ document.body.appendChild(
 		editLink,
 		copyLink,
 		shareLink,
-		fullscreenLink,
-	),
+		fullscreenLink
+	)
 );
 
 // Some browsers have an option to "block third-party cookies" (it's enabled by
@@ -266,16 +357,15 @@ function loadSong(songString: string, reuseParams: boolean): void {
 function hashUpdatedExternally(): void {
 	let myHash: string = location.hash;
 	if (prevHash == myHash || myHash == "") return;
-		
+
 	prevHash = myHash;
-		
+
 	if (myHash.charAt(0) == "#") {
 		myHash = myHash.substring(1);
 	}
-		
-	
+
 	fullscreenLink.href = location.href;
-		
+
 	for (const parameter of myHash.split("&")) {
 		let equalsIndex: number = parameter.indexOf("=");
 		if (equalsIndex != -1) {
@@ -292,7 +382,7 @@ function hashUpdatedExternally(): void {
 				//	titleText.textContent = decodeURIComponent(value);
 				//	break;
 				case "loop":
-					synth.loopRepeatCount = (value != "1") ? 0 : -1;
+					synth.loopRepeatCount = value != "1" ? 0 : -1;
 					renderLoopIcon();
 					break;
 			}
@@ -300,7 +390,7 @@ function hashUpdatedExternally(): void {
 			loadSong(myHash, false);
 		}
 	}
-		
+
 	renderTimeline();
 }
 
@@ -318,11 +408,10 @@ function animate(): void {
 
 		volumeUpdate();
 	}
-		
+
 	if (pauseButtonDisplayed != synth.playing) {
 		renderPlayButton();
 	}
-
 }
 
 function volumeUpdate(): void {
@@ -330,7 +419,7 @@ function volumeUpdate(): void {
 		outVolumeCap.setAttribute("x", "5%");
 		outVolumeBar.setAttribute("width", "0%");
 		return;
-}
+	}
 	outVolumeHistoricTimer--;
 	if (outVolumeHistoricTimer <= 0) {
 		outVolumeHistoricCap -= 0.03;
@@ -411,7 +500,8 @@ function onTimelineTouchMove(event: TouchEvent): void {
 function onTimelineCursorMove(mouseX: number): void {
 	if (draggingPlayhead && synth.song != null) {
 		const boundingRect: ClientRect = visualizationContainer.getBoundingClientRect();
-		synth.playhead = synth.song.barCount * (mouseX - boundingRect.left) / (boundingRect.right - boundingRect.left);
+		synth.playhead =
+			(synth.song.barCount * (mouseX - boundingRect.left)) / (boundingRect.right - boundingRect.left);
 		synth.computeLatestModValues();
 		renderPlayhead();
 	}
@@ -429,8 +519,8 @@ function setSynthVolume(): void {
 function renderPlayhead(): void {
 	if (synth.song != null) {
 		let pos: number = synth.playhead / synth.song.barCount;
-		playhead.style.left = (timelineWidth * pos) + "px";
-			
+		playhead.style.left = timelineWidth * pos + "px";
+
 		const boundingRect: ClientRect = visualizationContainer.getBoundingClientRect();
 		visualizationContainer.scrollLeft = pos * (timelineWidth - boundingRect.width);
 	}
@@ -439,13 +529,13 @@ function renderPlayhead(): void {
 function renderTimeline(): void {
 	timeline.innerHTML = "";
 	if (synth.song == null) return;
-		
+
 	const boundingRect: ClientRect = visualizationContainer.getBoundingClientRect();
-		
+
 	let timelineHeight: number;
 	let windowOctaves: number;
 	let windowPitchCount: number;
-		
+
 	if (zoomEnabled) {
 		timelineHeight = boundingRect.height;
 		windowOctaves = Math.max(1, Math.min(Config.pitchOctaves, Math.round(timelineHeight / (12 * 2))));
@@ -455,75 +545,118 @@ function renderTimeline(): void {
 		timelineWidth = Math.max(boundingRect.width, targetBeatWidth * synth.song.barCount * synth.song.beatsPerBar);
 	} else {
 		timelineWidth = boundingRect.width;
-		const targetSemitoneHeight: number = Math.max(1, timelineWidth / (synth.song.barCount * synth.song.beatsPerBar) / 6.0);
+		const targetSemitoneHeight: number = Math.max(
+			1,
+			timelineWidth / (synth.song.barCount * synth.song.beatsPerBar) / 6.0
+		);
 		timelineHeight = Math.min(boundingRect.height, targetSemitoneHeight * (Config.maxPitch + 1) + 1);
-		windowOctaves = Math.max(3, Math.min(Config.pitchOctaves, Math.round(timelineHeight / (12 * targetSemitoneHeight))));
+		windowOctaves = Math.max(
+			3,
+			Math.min(Config.pitchOctaves, Math.round(timelineHeight / (12 * targetSemitoneHeight)))
+		);
 		windowPitchCount = windowOctaves * 12 + 1;
 	}
-		
+
 	timelineContainer.style.width = timelineWidth + "px";
 	timelineContainer.style.height = timelineHeight + "px";
 	timeline.style.width = timelineWidth + "px";
 	timeline.style.height = timelineHeight + "px";
-		
+
 	const barWidth: number = timelineWidth / synth.song.barCount;
 	const partWidth: number = barWidth / (synth.song.beatsPerBar * Config.partsPerBeat);
 
-		const wavePitchHeight: number = (timelineHeight-1) / windowPitchCount;
-		const drumPitchHeight: number =  (timelineHeight-1) / Config.drumCount;
-		
-	for (let bar: number = 0; bar < synth.song.barCount + 1; bar++) {
-		const color: string = (bar == synth.song.loopStart || bar == synth.song.loopStart + synth.song.loopLength) ? ColorConfig.loopAccent : ColorConfig.uiWidgetBackground;
-			timeline.appendChild(rect({x: bar * barWidth - 1, y: 0, width: 2, height: timelineHeight, fill: color}));
-	}
-		
-	for (let octave: number = 0; octave <= windowOctaves; octave++) {
-			timeline.appendChild(rect({x: 0, y: octave * 12 * wavePitchHeight, width: timelineWidth, height: wavePitchHeight + 1, fill: ColorConfig.tonic, opacity: 0.75}));
-	}
-		
-	for (let channel: number = synth.song.channels.length - 1 - synth.song.modChannelCount; channel >= 0; channel--) {
+	const wavePitchHeight: number = (timelineHeight - 1) / windowPitchCount;
+	const drumPitchHeight: number = (timelineHeight - 1) / Config.drumCount;
 
+	for (let bar: number = 0; bar < synth.song.barCount + 1; bar++) {
+		const color: string =
+			bar == synth.song.loopStart || bar == synth.song.loopStart + synth.song.loopLength
+				? ColorConfig.loopAccent
+				: ColorConfig.uiWidgetBackground;
+		timeline.appendChild(rect({ x: bar * barWidth - 1, y: 0, width: 2, height: timelineHeight, fill: color }));
+	}
+
+	for (let octave: number = 0; octave <= windowOctaves; octave++) {
+		timeline.appendChild(
+			rect({
+				x: 0,
+				y: octave * 12 * wavePitchHeight,
+				width: timelineWidth,
+				height: wavePitchHeight + 1,
+				fill: ColorConfig.tonic,
+				opacity: 0.75
+			})
+		);
+	}
+
+	for (let channel: number = synth.song.channels.length - 1 - synth.song.modChannelCount; channel >= 0; channel--) {
 		const isNoise: boolean = synth.song.getChannelIsNoise(channel);
 		const pitchHeight: number = isNoise ? drumPitchHeight : wavePitchHeight;
-			
+
 		const configuredOctaveScroll: number = synth.song.channels[channel].octave;
-		const newOctaveScroll: number = Math.max(0, Math.min(Config.pitchOctaves - windowOctaves, Math.ceil(configuredOctaveScroll - windowOctaves * 0.5)));
-			
+		const newOctaveScroll: number = Math.max(
+			0,
+			Math.min(Config.pitchOctaves - windowOctaves, Math.ceil(configuredOctaveScroll - windowOctaves * 0.5))
+		);
+
 		const offsetY: number = newOctaveScroll * pitchHeight * 12 + timelineHeight - pitchHeight * 0.5 - 0.5;
-			
+
 		for (let bar: number = 0; bar < synth.song.barCount; bar++) {
 			const pattern: Pattern | null = synth.song.getPattern(channel, bar);
 			if (pattern == null) continue;
 			const offsetX: number = bar * barWidth;
-				
+
 			for (let i: number = 0; i < pattern.notes.length; i++) {
 				const note: Note = pattern.notes[i];
-					
+
 				for (const pitch of note.pitches) {
-					const d: string = drawNote(pitch, note.start, note.pins, (pitchHeight + 1) / 2, offsetX, offsetY, partWidth, pitchHeight);
-						const noteElement: SVGPathElement = path({d: d, fill: ColorConfig.getChannelColor(synth.song, channel).primaryChannel});
+					const d: string = drawNote(
+						pitch,
+						note.start,
+						note.pins,
+						(pitchHeight + 1) / 2,
+						offsetX,
+						offsetY,
+						partWidth,
+						pitchHeight
+					);
+					const noteElement: SVGPathElement = path({
+						d: d,
+						fill: ColorConfig.getChannelColor(synth.song, channel).primaryChannel
+					});
 					if (isNoise) noteElement.style.opacity = String(0.6);
 					timeline.appendChild(noteElement);
 				}
 			}
 		}
 	}
-		
+
 	renderPlayhead();
 }
 
-function drawNote(pitch: number, start: number, pins: NotePin[], radius: number, offsetX: number, offsetY: number, partWidth: number, pitchHeight: number): string {
-	let d: string = `M ${offsetX + partWidth * (start + pins[0].time)} ${offsetY - pitch * pitchHeight + radius * (pins[0].size / Config.noteSizeMax)} `; 
+function drawNote(
+	pitch: number,
+	start: number,
+	pins: NotePin[],
+	radius: number,
+	offsetX: number,
+	offsetY: number,
+	partWidth: number,
+	pitchHeight: number
+): string {
+	let d: string = `M ${offsetX + partWidth * (start + pins[0].time)} ${
+		offsetY - pitch * pitchHeight + radius * (pins[0].size / Config.noteSizeMax)
+	} `;
 	for (let i: number = 0; i < pins.length; i++) {
 		const pin: NotePin = pins[i];
-			const x:   number = offsetX + partWidth * (start + pin.time);
+		const x: number = offsetX + partWidth * (start + pin.time);
 		const y: number = offsetY - pitchHeight * (pitch + pin.interval);
 		const expression: number = pin.size / Config.noteSizeMax;
 		d += `L ${x} ${y - radius * expression} `;
 	}
 	for (let i: number = pins.length - 1; i >= 0; i--) {
 		const pin: NotePin = pins[i];
-			const x:   number = offsetX + partWidth * (start + pin.time);
+		const x: number = offsetX + partWidth * (start + pin.time);
 		const y: number = offsetY - pitchHeight * (pitch + pin.interval);
 		const expression: number = pin.size / Config.noteSizeMax;
 		d += `L ${x} ${y + radius * expression} `;
@@ -547,7 +680,10 @@ function renderPlayButton(): void {
 }
 
 function renderLoopIcon(): void {
-	loopIcon.setAttribute("fill", (synth.loopRepeatCount == -1) ? ColorConfig.linkAccent : ColorConfig.uiWidgetBackground);
+	loopIcon.setAttribute(
+		"fill",
+		synth.loopRepeatCount == -1 ? ColorConfig.linkAccent : ColorConfig.uiWidgetBackground
+	);
 }
 
 function renderZoomIcon(): void {
@@ -605,7 +741,7 @@ function onShareClicked(): void {
 	(<any>navigator).share({ url: location.href });
 }
 
-	if ( top !== self ) {
+if (top !== self) {
 	// In an iframe.
 	copyLink.style.display = "none";
 	shareLink.style.display = "none";
@@ -645,4 +781,24 @@ renderZoomIcon();
 renderPlayButton();
 
 // When compiling synth.ts as a standalone module named "beepbox", expose these classes as members to JavaScript:
-	export {Dictionary, DictionaryArray, EnvelopeType, InstrumentType, Transition, Chord, Envelope, Config, NotePin, Note, Pattern, Instrument, Channel, Synth};
+export {
+	type Dictionary,
+	type DictionaryArray,
+	EnvelopeType,
+	InstrumentType,
+	type Transition,
+	type Chord,
+	type Envelope,
+	Config,
+	type NotePin,
+	Note,
+	Pattern,
+	Instrument,
+	Channel,
+	Synth
+};
+
+(window as any)["beepbox"] = {
+	Config,
+	Synth
+};
