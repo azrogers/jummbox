@@ -125,6 +125,7 @@ import {
 import { Doc } from "./GlobalDoc";
 
 import { TrackEditor } from "./TrackEditor";
+import { ExportStemsPrompt } from "./ExportStemsPrompt";
 
 const { button, div, input, select, span, optgroup, option, canvas } = HTML;
 
@@ -510,6 +511,7 @@ export class SongEditor {
 		option({ value: "new" }, "+ New Blank Song"),
 		option({ value: "import" }, "↑ Import Song... (" + EditorConfig.ctrlSymbol + "O)"),
 		option({ value: "export" }, "↓ Export Song... (" + EditorConfig.ctrlSymbol + "S)"),
+		option({ value: "export_stems" }, "⇊ Export Stems..."),
 		option({ value: "copyUrl" }, "⎘ Copy Song URL"),
 		option({ value: "shareUrl" }, "⤳ Share Song URL"),
 		option({ value: "shortenUrl" }, "… Shorten Song URL"),
@@ -2460,6 +2462,9 @@ export class SongEditor {
 			switch (promptName) {
 				case "export":
 					this.prompt = new ExportPrompt(Doc);
+					break;
+				case "exportStems":
+					this.prompt = new ExportStemsPrompt(Doc);
 					break;
 				case "import":
 					this.prompt = new ImportPrompt(Doc);
@@ -4974,6 +4979,9 @@ export class SongEditor {
 				break;
 			case "export":
 				this._openPrompt("export");
+				break;
+			case "export_stems":
+				this._openPrompt("exportStems");
 				break;
 			case "import":
 				this._openPrompt("import");
