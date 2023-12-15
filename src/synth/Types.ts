@@ -1,0 +1,134 @@
+export const enum CharCode
+{
+	SPACE = 32,
+	HASH = 35,
+	PERCENT = 37,
+	AMPERSAND = 38,
+	PLUS = 43,
+	DASH = 45,
+	DOT = 46,
+	NUM_0 = 48,
+	NUM_1 = 49,
+	NUM_2 = 50,
+	NUM_3 = 51,
+	NUM_4 = 52,
+	NUM_5 = 53,
+	NUM_6 = 54,
+	NUM_7 = 55,
+	NUM_8 = 56,
+	NUM_9 = 57,
+	EQUALS = 61,
+	A = 65,
+	B = 66,
+	C = 67,
+	D = 68,
+	E = 69,
+	F = 70,
+	G = 71,
+	H = 72,
+	I = 73,
+	J = 74,
+	K = 75,
+	L = 76,
+	M = 77,
+	N = 78,
+	O = 79,
+	P = 80,
+	Q = 81,
+	R = 82,
+	S = 83,
+	T = 84,
+	U = 85,
+	V = 86,
+	W = 87,
+	X = 88,
+	Y = 89,
+	Z = 90,
+	UNDERSCORE = 95,
+	a = 97,
+	b = 98,
+	c = 99,
+	d = 100,
+	e = 101,
+	f = 102,
+	g = 103,
+	h = 104,
+	i = 105,
+	j = 106,
+	k = 107,
+	l = 108,
+	m = 109,
+	n = 110,
+	o = 111,
+	p = 112,
+	q = 113,
+	r = 114,
+	s = 115,
+	t = 116,
+	u = 117,
+	v = 118,
+	w = 119,
+	x = 120,
+	y = 121,
+	z = 122,
+	LEFT_CURLY_BRACE = 123,
+	RIGHT_CURLY_BRACE = 125
+}
+
+export const enum SongTagCode
+{
+	beatCount = CharCode.a,// added in song url version 2
+	bars = CharCode.b,// added in 2
+	vibrato = CharCode.c,// added in 2, DEPRECATED
+	fadeInOut = CharCode.d,// added in 3 for transition, switched to fadeInOut in 9
+	loopEnd = CharCode.e,// added in 2
+	eqFilter = CharCode.f,// added in 3
+	barCount = CharCode.g,// added in 3
+	unison = CharCode.h,// added in 2
+	instrumentCount = CharCode.i,// added in 3
+	patternCount = CharCode.j,// added in 3
+	key = CharCode.k,// added in 2
+	loopStart = CharCode.l,// added in 2
+	reverb = CharCode.m,// added in 5, DEPRECATED
+	channelCount = CharCode.n,// added in 6
+	channelOctave = CharCode.o,// added in 3
+	patterns = CharCode.p,// added in 2
+	effects = CharCode.q,// added in 7
+	rhythm = CharCode.r,// added in 2
+	scale = CharCode.s,// added in 2
+	tempo = CharCode.t,// added in 2
+	preset = CharCode.u,// added in 7
+	volume = CharCode.v,// added in 2
+	wave = CharCode.w,// added in 2
+
+	filterResonance = CharCode.y,// added in 7, DEPRECATED
+	drumsetEnvelopes = CharCode.z,// added in 7 for filter envelopes, still used for drumset envelopes
+	algorithm = CharCode.A,// added in 6
+	feedbackAmplitude = CharCode.B,// added in 6
+	chord = CharCode.C,// added in 7, DEPRECATED
+	detune = CharCode.D,// [JB], added in 3(?), DEPRECATED
+	envelopes = CharCode.E,// added in 6 for FM operator envelopes, repurposed in 9 for general envelopes.
+	feedbackType = CharCode.F,// added in 6
+	arpeggioSpeed = CharCode.G,// [JB], added in 3, DEPRECATED
+	harmonics = CharCode.H,// added in 7
+	stringSustain = CharCode.I,// added in 9
+
+	pan = CharCode.L,// added between 8 and 9, DEPRECATED
+	customChipWave = CharCode.M,// [JB], added in 1(?)
+	songTitle = CharCode.N,// [JB], added in 1(?)
+	limiterSettings = CharCode.O,// [JB], added in 3(?)
+
+	operatorAmplitudes = CharCode.P,// added in 6
+	operatorFrequencies = CharCode.Q,// added in 6
+	operatorWaves = CharCode.R,// [JB], added in 4
+	spectrum = CharCode.S,// added in 7
+	startInstrument = CharCode.T,// added in 6
+	channelNames = CharCode.U,// [JB], added in 4(?)
+	feedbackEnvelope = CharCode.V,// added in 6, DEPRECATED
+	pulseWidth = CharCode.W,// added in 7
+	aliases = CharCode.X
+
+}
+
+export const base64IntToCharCode: ReadonlyArray<number> = [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 45, 95];
+export const base64CharCodeToInt: ReadonlyArray<number> = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62, 62, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 63, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 0, 0, 0]; // 62 could be represented by either "-" or "." for historical reasons. New songs should use "-".
